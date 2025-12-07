@@ -238,16 +238,47 @@ HTML_TEMPLATE = """
 
 # --- Helper Functions (基於 v2 簡化和統一) ---
 
-def git_run(args):
-    """使用 git -C <repo> 執行 Git 指令"""
-    if not os.path.isdir(REPO_PATH):
-        return subprocess.CompletedProcess(args, 1, stdout="", stderr=f"找不到儲存庫路徑 '{REPO_PATH}'", encoding="utf-8")
+# def git_run(args):
+#     """使用 git -C <repo> 執行 Git 指令"""
+#     if not os.path.isdir(REPO_PATH):
+#         return subprocess.CompletedProcess(args, 1, stdout="", stderr=f"找不到儲存庫路徑 '{REPO_PATH}'", encoding="utf-8")
         
-    return subprocess.run(
-        ["git", "-C", REPO_PATH] + args,
-        capture_output=True, text=True,
-        encoding="utf-8", errors="replace"
-    )
+#     return subprocess.run(
+#         ["git", "-C", REPO_PATH] + args,
+#         capture_output=True, text=True,
+#         encoding="utf-8", errors="replace"
+#     )
+
+# 更新git_run 函式
+# --- Git 指令統一用 os.chdir ---
+# --- Git 指令統一用 os.chdir ---
+def git_run(args):
+    import os
+    import subprocess
+    
+    # REPO_PATH 應已在檔案開頭定義為 '/home/TIT65mate/mysite'
+    
+    if not os.path.isdir(REPO_PATH):
+        # 如果路徑不存在，返回錯誤
+        return subprocess.CompletedProcess(args, 1, stdout="", 
+               stderr=f"找不到儲存庫路徑 '{REPO_PATH}'", encoding="utf-8")
+        
+    original_cwd = os.getcwd() # 儲存當前工作目錄
+    try:
+        os.chdir(REPO_PATH) # 強制切換到 Git 儲存庫目錄
+        
+        # 執行 Git 命令，不再需要 -C 參數
+        r = subprocess.run(
+            ["git"] + args,
+            capture_output=True, text=True,
+            encoding="utf-8", errors="replace"
+        )
+        return r
+    except Exception as e:
+        return subprocess.CompletedProcess(args, 1, stdout="", 
+               stderr=f"Git 執行錯誤: {e}", encoding="utf-8")
+    finally:
+        os.chdir(original_cwd) # 確保返回原始目錄
 
 def load_data_from_csv(path, days, names):
     """讀取 CSV 資料"""
