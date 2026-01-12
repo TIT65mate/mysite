@@ -9,7 +9,7 @@ if path not in sys.path:
 
 # 💡 核心變更：從您的應用程式檔案中匯入 'app' 實例
 # 您的程式碼已經被您重新命名為 antigravity_webapp_1.py
-from antigravity_webapp_4 import app as application
+# from antigravity_webapp_V4 import app as application
 
 # 注意：PythonAnywhere 要求應用實例變數必須命名為 'application'
 
